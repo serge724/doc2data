@@ -40,3 +40,8 @@ path = "doc2data/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 [tool.hatch.build.targets.wheel]
+
+[tool.black]
+include = '\.pyi?$'
+line-length = 88
+target-version = ["py37", "py38", "py39", "py310"]
