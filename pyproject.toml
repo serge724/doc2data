@@ -36,7 +36,7 @@ Issues = "https://github.com/serge724/doc2data/issues"
 Source = "https://github.com/serge724/doc2data"
 
 [tool.hatch.version]
-path = "doc2data/__about__.py"
+path = "doc2data/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 [tool.hatch.build.targets.wheel]
