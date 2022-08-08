@@ -5,6 +5,10 @@
 
 -----
 
+## About doc2data
+doc2data provides functionality to train and use deep learning models for various document processing tasks.
+
+
 **Table of Contents**
 
 - [Installation](#installation)
@@ -18,4 +22,4 @@ pip install doc2data
 
 ## License
 
-`doc2data` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+`doc2data` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
