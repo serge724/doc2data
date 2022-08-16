@@ -26,7 +26,29 @@ logger = logging.getLogger(__name__)
 
 class Page:
 
-    """Class representing individual pages from a pdf file."""
+    """Class representing individual pages from a pdf file.
+
+    This class allows accessing the contents of a page using the pymupdf package.
+    It also contains additional attributes that describe the page content.
+    All attribute values are obtained using the pymupdf interface therefore relying
+    on its accuracy.
+
+    Attributes:
+        pt_height: Height of the page in points (1 point = 1/72 inch).
+        pt_width: Width of the page in points (1 point = 1/72 inch).
+        number: Page number within the pdf file.
+        content_type: Type of information contained in the page. One of:
+
+            - text: Pure text.
+            - images: One or more images.
+            - mixed: A combination of text and images.
+            - recovered_image: If pymupdf does not detect any content, the page is
+                rendered as an image.
+        n_tokens: Number of tokens identified by pymupdf. Roughly corresponds to words.
+        n_images: Number of images identified by pymupdf.
+        pcnt_chars_corrupted: Number of characters that could not be correctly decoded.
+        path_to_pdf: Path to pdf file containing the page.
+    """
 
     def __init__(
         self,
@@ -50,7 +72,43 @@ class Page:
 
     def read_contents(self, types, force_rgb=None, dpi=None):
 
-        """Read page contents via the pymupdf interface."""
+        """Read page contents via the pymupdf interface.
+
+        This opens the pdf file with pymupdf and extracts the requested
+        content. Multiple content types can be provided simultaneously.
+
+        Args:
+          types:
+            String or list of strings indicating which contents should be
+            returned. Possible content types are:
+
+              - tokens: Tokens with bounding boxes. A token rougly corresponds
+                  to a word.
+              - text: String containg all tokens in the reading order which
+                  is recovered by pymupdf.
+              - images: Images with bounding boxes.
+              - page_image: Entire page as one image.
+              - raw_dict: Raw output from pymupdf.
+          force_rgb:
+            Only if 'page_image' in types: Coverts to RGB and adds white backgound.
+          dpi:
+            Only if 'page_image' in types: Resolution to use when converting pdf to image.
+
+        Returns:
+          A dictionary with the requested contents. If a single type was requested,
+            it is returned directly.
+
+        Examples:
+          >>> from doc2data.pdf import PDFFile
+          >>> pdf_file = PDFFile('path_to_pdf')
+          >>> pdf_file.parse_pages()
+          >>> page = pdf_file.processed_pages[0]
+          >>> page.read_contents('page_image')
+          >>> page.read_contents(['tokens', 'images'])
+
+        Raises:
+          ValueError: If one or more requested types are not recognized.
+        """
 
         allowed_types = set(("tokens", "text", "images", "page_image", "raw_dict"))
         if isinstance(types, str):
@@ -110,7 +168,17 @@ class Page:
         return contents
 
     def show_page_image(self, dpi=None, show_bboxes=False, bbox_color="red"):
-        """Wrapper for Page.read_contents to show page as image."""
+        """Wrapper for Page.read_contents to show page as image.
+
+        Args:
+          dpi: Resolution to use when converting pdf to image.
+          show_bboxes: Boolean indicating whether to draw bounding boxes aroung
+            the tokens and images.
+          bbox_color: Color of the bounding boxes.
+
+        Returns:
+            A PIL image of the document page.
+        """
 
         contents = self.read_contents(
             ["page_image", "tokens", "images"], force_rgb=True, dpi=dpi
@@ -130,7 +198,15 @@ class Page:
 
 
 class PDFFile:
-    """Class representing an individual pdf file."""
+    """Class representing an individual pdf file.
+
+    Attributes:
+      path_to_pdf: Path to pdf file.
+      file_name: File name.
+      n_pages: Number of pages in the pdf file.
+      parsed_pages: List of Page objects providing an interface to each page.
+      loaded_successfully: Boolan indicating if pdf file could be processed.
+    """
 
     def __init__(self, path_to_pdf):
         self.path_to_pdf = path_to_pdf
@@ -156,7 +232,12 @@ class PDFFile:
         return fitz.open(filename=self.path_to_pdf)
 
     def parse_pages(self):
-        """Iterates over pages and instantiates Page objects."""
+        """Iterates over pages and instantiates Page objects.
+
+        Raises:
+          AssertionError: If the file does not have a .pdf extension.
+          RuntimeError: If pymupdf fails to open the file.
+        """
 
         try:
             with self.open_fitz_document() as pdf:
@@ -199,7 +280,30 @@ class PDFFile:
 
 
 class PDFCollection:
-    """Creates a collection from pdf files that are stored in a directory."""
+    """Creates a collection from pdf files that are stored in a directory.
+
+    This class serves multiple purposes: First, it allows to parse pdf files
+    from a directory to create a collection. Second, it provides overview
+    information about the collection on page level. Third, it allows reading
+    contents from individual pdfs through a dictionary with PDFFile objects.
+
+    The PDFCollection class does not store any files itself. Instead, it only
+    keeps track of the files present in the target folder via a dictionary.
+    Therefore, once a collection is created, files should not be removed from
+    the source folder.
+
+    Examples:
+      >>> from doc2data.pdf import PDFCollection
+      >>> pdf_collection = PDFCollection('path_to_files') # create collection
+      >>> pdf_collection.parse_files() # populate collection
+      >>> print(pdf_collection.overview) # inspect collection
+
+    Attributes:
+      path_to_files: Path to source directory containing the pdf files.
+      pdfs: A dictionary containing a PDFFile object for each file.      
+      ignored_files: A list of file names that could not be processed.
+      overview: A Pandas DataFrame containing summary information on page level.
+    """
 
     def __init__(self, path_to_files):
         self.path_to_files = path_to_files
@@ -219,7 +323,15 @@ class PDFCollection:
         return pdf
 
     def parse_files(self, use_multiprocessing=True):
-        """Populates the collection with PDFFile objects based on source directory."""
+        """Populates the collection with PDFFile objects based on source directory.
+
+        Additionally, information on the content is extracted and recorded on
+        page level.
+
+        Args:
+          use_multiprocessing: Use multiprocessing to speed up population using
+            all available cores
+        """
 
         logger.info("Parsing files in %s", self.path_to_files)
 
@@ -259,7 +371,14 @@ class PDFCollection:
         )
 
     def save(self, file_path, overwrite=False):
-        """Serializes collection to a file with pickle."""
+        """Serializes collection to a file with pickle.
+
+        Path directories are created if they do not exist.
+
+        Args:
+          file_path: File path where to save the collection.
+          overwrite: Set to True if an existing collection should be overwritten.
+        """
         if os.path.exists(file_path) and not overwrite:
             raise FileExistsError("Collection already exists")
         if os.path.dirname(file_path):
@@ -269,7 +388,14 @@ class PDFCollection:
 
     @staticmethod
     def load(file_path):
-        """Loads serialized collection."""
+        """Loads serialized collection.
+
+        Args:
+          file_path: File path from where to load the collection
+
+        Returns:
+          A PDFCollection object.
+        """
 
         with open(file_path, "rb") as file:
             dataset = pickle.load(file)
