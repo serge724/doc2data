@@ -1,0 +1,19 @@
+site_name: doc2data
+nav:
+  - About doc2data: index.md
+  - Getting started: getting_started.md
+  - API Reference: api_reference.md
+theme:
+  name: readthedocs
+  highlightsjs: false
+plugins:
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_source: false
+            docstring_style: google
+            separate_signature: true
+markdown_extensions:
+  - markdown_include.include
