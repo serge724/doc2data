@@ -4,4 +4,4 @@
 
 """doc2data - Integrated document processing with machine learning."""
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
