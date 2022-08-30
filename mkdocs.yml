@@ -3,6 +3,7 @@ nav:
   - About doc2data: index.md
   - Getting started: getting_started.md
   - API Reference: api_reference.md
+  - Changelog: changelog.md
 theme:
   name: readthedocs
   highlightsjs: false
