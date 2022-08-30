@@ -37,7 +37,7 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Documentation = "https://github.com/serge724/doc2data#readme"
+Documentation = "http://doc2data.readthedocs.io/"
 Issues = "https://github.com/serge724/doc2data/issues"
 Source = "https://github.com/serge724/doc2data"
 
