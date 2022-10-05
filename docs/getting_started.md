@@ -11,7 +11,7 @@ collection = PDFCollection("path_to_files")
 The collection is now linked to the defined path. No files should be removed from the directory. Count the files to see how many files are available.
 
 ```python
-collection.count_files()
+collection.count_source_files()
 ```
 
 Now we need to parse the files to check if they are readable and to populate the collection. You can disable multiprocessing by setting `use_multiprocessing` to False.
