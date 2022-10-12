@@ -1,5 +1,4 @@
 # doc2data
-
 [![PyPI - Version](https://img.shields.io/pypi/v/doc2data.svg)](https://pypi.org/project/doc2data)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/doc2data.svg)](https://pypi.org/project/doc2data)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -8,20 +7,28 @@
 -----
 
 ## About doc2data
-doc2data provides functionality to train and use deep learning models for various document processing tasks.
+doc2data is a Python library that provides functionality to train deep learning models for various document processing tasks.
 
+Currently, models can be trained for four tasks:
 
-**Table of Contents**
+1. Page rotation
+2. Page cropping
+3. Document (multi-page) classification
+4. Token classification
 
-- [Installation](#installation)
-- [License](#license)
+Please note that doc2data is currently in a prototype stage.
 
 ## Installation
-
 ```console
 pip install doc2data
 ```
 
-## License
+## Documentation
+The documentation can be found [here](https://doc2data.readthedocs.io/en/latest/).
 
+## License
 `doc2data` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
+
+## Credits
+![alt text](https://raw.githubusercontent.com/serge724/d2d_sample_datasets/2575ad957bf407e676acdd71e8cffe7fe2fae2ee/PrototypeFund-P-Logo.svg)
+![alt text](https://raw.githubusercontent.com/serge724/d2d_sample_datasets/823b78f99e01493f43023e8ad67008c4d1eaf4cf/BMBF_CMYK_Gef_L_e.svg)
