@@ -30,5 +30,5 @@ The documentation can be found [here](https://doc2data.readthedocs.io/en/latest/
 `doc2data` is distributed under the terms of the [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html) license.
 
 ## Credits
-![alt text](https://raw.githubusercontent.com/serge724/d2d_sample_datasets/2575ad957bf407e676acdd71e8cffe7fe2fae2ee/PrototypeFund-P-Logo.svg)
-![alt text](https://raw.githubusercontent.com/serge724/d2d_sample_datasets/823b78f99e01493f43023e8ad67008c4d1eaf4cf/BMBF_CMYK_Gef_L_e.svg)
+![Prototypefund](https://raw.githubusercontent.com/serge724/doc2data/156115b7b9e33611cd56d8637604cf6ea8191c51/docs/assets/PrototypeFund-P-Logo.svg)
+![Federal Ministry of Education and Research](https://raw.githubusercontent.com/serge724/doc2data/156115b7b9e33611cd56d8637604cf6ea8191c51/docs/assets/BMBF_CMYK_Gef_L_e.svg)
