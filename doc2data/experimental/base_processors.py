@@ -50,49 +50,52 @@ class DataProcessorMixin:
 if _tf_available:
 
     class DataProcessor(DataProcessorMixin, tf.keras.utils.Sequence):
-        """Base data processing pipeline for TensorFlow backend."""
+            """Base data processing pipeline for TensorFlow backend."""
 
-        batch_size = 1
+            batch_size = 1
 
-        def __len__(self):
-            return int(np.ceil(len(self.instances_df) / self.batch_size))
+            def __len__(self):
+                return int(np.ceil(len(self.instances_df) / self.batch_size))
 
-        def __getitem__(self, idx):
-            batch_df = self.instances_df.iloc[idx * self.batch_size:(idx + 1) * self.batch_size]
+            def __getitem__(self, idx):
+                batch_df = self.instances_df.iloc[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-            batch_features = []
-            batch_labels = []
-            for i, row in batch_df.iterrows():
-                features, labels = self.get_processed_instance(row)
-                batch_features.append(features)
-                batch_labels.append(labels)
-            if isinstance(features, list):
-                batch_features = [
-                    np.stack([i[0] for i in batch_features], axis = 0),
-                    np.stack([i[1] for i in batch_features], axis = 0)
-                ]
-            else:
-                batch_features = np.stack(batch_features, axis = 0)
+                batch_features = []
+                batch_labels = []
+                for i, row in batch_df.iterrows():
+                    features, labels = self.get_processed_instance(row)
+                    batch_features.append(features)
+                    batch_labels.append(labels)
+                # collate features if more than one input
+                if isinstance(features, list):
+                    n_inputs = len(batch_features[0])
+                    batch_features = [np.stack([j[i] for j in batch_features], axis = 0) for i in range(n_inputs)]
+                else:
+                    batch_features = np.stack(batch_features, axis = 0)
+                # collate labels if more than one label
+                if isinstance(labels, list):
+                    n_outputs = len(batch_labels[0])
+                    batch_labels = [np.stack([j[i] for j in batch_labels], axis = 0) for i in range(n_outputs)]
+                else:
+                    batch_labels = np.stack(batch_labels, axis = 0)
 
-            batch_labels = np.stack(batch_labels, axis = 0)
+                return batch_features, batch_labels
 
-            return batch_features, batch_labels
+            def on_epoch_end(self):
+                pass
 
-        def on_epoch_end(self):
-            pass
+            def initialize_split(self, data_split, batch_size, shuffle = None, inference_mode = 'auto'):
+                """Returns a Keras Sequence object."""
 
-        def initialize_split(self, data_split, batch_size, shuffle = None, inference_mode = 'auto'):
-            """Returns a Keras Sequence object."""
-
-            sequence = copy(self)
-            sequence.instances_df = sequence.instances_df.query('data_split == %s'%str([data_split]))
-            sequence.batch_size = batch_size
-            if shuffle: print('Shuffle not applicable for tf.keras.Sequence object.')
-            if inference_mode == 'auto':
-                sequence.inference_mode = False if data_split == 'train_set' else True
-            else:
-                sequence.inference_mode = inference_mode
-            return sequence
+                sequence = copy(self)
+                sequence.instances_df = sequence.instances_df.query('data_split == %s'%str([data_split]))
+                sequence.batch_size = batch_size
+                if shuffle: print('Shuffle not applicable for tf.keras.Sequence object.')
+                if inference_mode == 'auto':
+                    sequence.inference_mode = False if data_split == 'train_set' else True
+                else:
+                    sequence.inference_mode = inference_mode
+                return sequence    
 
 if _torch_available and not _tf_available:
 
